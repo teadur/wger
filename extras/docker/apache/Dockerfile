@@ -36,6 +36,7 @@ RUN a2dissite 000-default.conf \
   && a2enconf fqdn
 
 # Set up the application
+RUN ln -s /home/wger/static/CACHE /var/www
 USER wger
 RUN git clone https://github.com/speshak/wger.git /home/wger/src
 
@@ -57,8 +58,7 @@ RUN . /home/wger/venv/bin/activate \
 # can access them.
 RUN chmod o+w -R ~/db/ \
     && . /home/wger/venv/bin/activate \
-    && mkdir ~/static \
-    && mkdir ~/media \
+    && mkdir -p ~/static/CACHE ~/media \
     && sed -i "/^MEDIA_ROOT/c\MEDIA_ROOT='\/home\/wger\/media'" settings.py \
     && python manage.py download-exercise-images \
     && chmod -R o+w ~/media \
