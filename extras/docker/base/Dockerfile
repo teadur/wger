@@ -13,11 +13,20 @@ FROM ubuntu:16.04
 LABEL maintainer="Roland Geider <roland@geider.net>"
 
 # Install dependencies
-RUN apt-get update\
-    && apt-get install -y nodejs nodejs-legacy npm git \
-         python-virtualenv python3-dev \
-         libjpeg8-dev zlib1g-dev libwebp-dev \
-         sudo
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y \
+      git \
+      libjpeg8-dev \
+      libwebp-dev \
+      nodejs \
+      nodejs-legacy \
+      npm \
+      python-virtualenv \
+      python3-dev \
+      sudo \
+      zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
+
 
 # Add wger user
 RUN adduser wger --disabled-password --gecos ""
