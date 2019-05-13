@@ -24,6 +24,7 @@ ENV LC_ALL en_US.UTF-8
 RUN apt-get update \
   && apt-get install --no-install-recommends -y \
     apache2 \
+    cron \
     libapache2-mod-wsgi-py3 \
   && rm -rf /var/lib/apt/lists/*
 
@@ -33,6 +34,14 @@ RUN a2dissite 000-default.conf \
   && a2ensite wger \
   && echo "ServerName localhost" >> /etc/apache2/conf-available/fqdn.conf \
   && a2enconf fqdn
+
+# Configure cron
+ADD crontab /etc/cron.d/wger
+ADD venvwrapper /home/wger/venvwrapper
+
+RUN chmod 0644 /etc/cron.d/wger \
+  && chmod +x /home/wger/venvwrapper \
+  && touch /var/log/cron.log
 
 # Set up the application
 RUN ln -s /home/wger/static/CACHE /var/www
