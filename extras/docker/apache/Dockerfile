@@ -7,9 +7,9 @@
 #
 #
 
-FROM wger/base
+FROM speshak/wger-base
 
-MAINTAINER Roland Geider <roland@geider.net>
+LABEL maintainer="Scott Peshak <scott@peshak.net>"
 EXPOSE 80
 
 # Set locale to UTF8, otherwise problems with the encoding can occur, e.g.
@@ -22,16 +22,32 @@ ENV LC_ALL en_US.UTF-8
 
 # Install dependencies
 RUN apt-get update \
-  && apt-get install -y apache2 libapache2-mod-wsgi-py3 libpq-dev
+  && apt-get install --no-install-recommends -y \
+    apache2 \
+    cron \
+    libapache2-mod-wsgi-py3 \
+  && rm -rf /var/lib/apt/lists/*
 
 # Configure apache
-RUN a2dissite 000-default.conf
 ADD wger.conf /etc/apache2/sites-available/
-RUN a2ensite wger
+RUN a2dissite 000-default.conf \
+  && a2ensite wger \
+  && echo "ServerName localhost" >> /etc/apache2/conf-available/fqdn.conf \
+  && a2enconf fqdn
+
+# Configure cron
+ADD crontab /etc/cron.d/wger
+ADD venvwrapper /home/wger/venvwrapper
+
+RUN chmod 0644 /etc/cron.d/wger \
+  && chmod +x /home/wger/venvwrapper \
+  && touch /var/log/cron.log
 
 # Set up the application
+RUN ln -s /home/wger/static/CACHE /var/www
 USER wger
-RUN git clone https://github.com/speshak/wger.git /home/wger/src
+ARG GIT_BRANCH=master
+RUN git clone -b ${GIT_BRANCH} https://github.com/speshak/wger.git /home/wger/src
 
 WORKDIR /home/wger/src
 RUN virtualenv --python python3 /home/wger/venv
@@ -51,8 +67,7 @@ RUN . /home/wger/venv/bin/activate \
 # can access them.
 RUN chmod o+w -R ~/db/ \
     && . /home/wger/venv/bin/activate \
-    && mkdir ~/static \
-    && mkdir ~/media \
+    && mkdir -p ~/static/CACHE ~/media \
     && sed -i "/^MEDIA_ROOT/c\MEDIA_ROOT='\/home\/wger\/media'" settings.py \
     && python manage.py download-exercise-images \
     && chmod -R o+w ~/media \
@@ -60,9 +75,6 @@ RUN chmod o+w -R ~/db/ \
     && python manage.py collectstatic --noinput
 
 USER root
-
-RUN echo "ServerName localhost" >> /etc/apache2/conf-available/fqdn.conf \
-    && a2enconf fqdn
 
 ENTRYPOINT ["/usr/sbin/apache2ctl"]
 CMD ["-D", "FOREGROUND"]
