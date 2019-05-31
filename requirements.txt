@@ -32,6 +32,9 @@ sphinx
 # django-mobile
 -e git+git://github.com/visualspace/django-mobile.git@django111#egg=django-mobile
 
+# django-user_agents
+-e git+git://github.com/joehybird/django-user_agents.git@django_2.2#egg=django-user_agents
+
 
 # Production
 psycopg2
