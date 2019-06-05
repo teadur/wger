@@ -43,7 +43,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.staticfiles',
     'django_extensions',
 
     # Uncomment the next line to enable the admin:
@@ -155,7 +154,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 # Breadcrumbs
-                'django.template.context_processors.request'
+                'django.template.context_processors.request',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
