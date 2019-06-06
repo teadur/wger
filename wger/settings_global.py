@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+    'django_extensions',
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -79,6 +80,7 @@ INSTALLED_APPS = (
     'tastypie',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
 
     # Breadcrumbs
     'django_bootstrap_breadcrumbs',
@@ -106,11 +108,14 @@ BOWER_INSTALLED_APPS = (
 )
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    # Django Admin
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
 
     # Javascript Header. Sends helper headers for AJAX
     'wger.utils.middleware.JavascriptAJAXRedirectionMiddleware',
@@ -170,11 +175,6 @@ TEMPLATES = [
     },
 ]
 
-# TODO: Temporary fix for django 1.10 and the django-mobile app. If issue #72
-#       is closed, this can be removed.
-#       https://github.com/gregmuellegger/django-mobile/issues/72
-TEMPLATE_LOADERS = TEMPLATES[0]['OPTIONS']['loaders']
-
 # Store the user messages in the session
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
@@ -217,7 +217,7 @@ USE_L10N = True
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = None
+TIME_ZONE = 'UTC'
 
 # Restrict the available languages
 LANGUAGES = (
@@ -347,7 +347,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',
                                 'rest_framework.filters.OrderingFilter',)
 }
 

@@ -23,7 +23,7 @@ from django.contrib.auth.mixins import (
     PermissionRequiredMixin
 )
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http.response import HttpResponseForbidden
 from django.utils.translation import (
     ugettext as _,
@@ -66,7 +66,7 @@ class ListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         '''
         Can only add notes to users in own gym
         '''
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseForbidden()
 
         user = User.objects.get(pk=self.kwargs['user_pk'])
@@ -107,7 +107,7 @@ class AddView(WgerFormMixin, LoginRequiredMixin, PermissionRequiredMixin, Create
         '''
         Can only add documents to users in own gym
         '''
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseForbidden()
 
         user = User.objects.get(pk=self.kwargs['user_pk'])
@@ -159,7 +159,7 @@ class UpdateView(WgerFormMixin, LoginRequiredMixin, PermissionRequiredMixin, Upd
         Only trainers for this gym can edit user notes
         '''
 
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseForbidden()
 
         note = self.get_object()
@@ -196,7 +196,7 @@ class DeleteView(WgerDeleteMixin, LoginRequiredMixin, PermissionRequiredMixin, D
         '''
         Only trainers for this gym can delete documents
         '''
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseForbidden()
 
         note = self.get_object()

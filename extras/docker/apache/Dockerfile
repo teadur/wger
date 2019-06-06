@@ -49,7 +49,7 @@ RUN chmod 0644 /etc/cron.d/wger \
 # Set up the application
 RUN ln -s /home/wger/static/CACHE /var/www
 USER wger
-ARG GIT_BRANCH=master
+ARG GIT_BRANCH=django-upgrade
 RUN git clone -b ${GIT_BRANCH} https://github.com/speshak/wger.git /home/wger/src
 
 WORKDIR /home/wger/src
@@ -57,6 +57,7 @@ RUN virtualenv --python python3 /home/wger/venv
 RUN . /home/wger/venv/bin/activate \
     && pip install --upgrade pip \
     && pip install -r requirements.txt \
+    && pip install -r requirements_forked.txt \
     && python setup.py develop \
     && wger create_settings \
         --settings-path /home/wger/src/settings.py \

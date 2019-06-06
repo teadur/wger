@@ -21,7 +21,7 @@ import logging
 # Third Party
 import six
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import (
+from django.urls import (
     reverse,
     reverse_lazy
 )
@@ -44,10 +44,8 @@ from django.views.generic import (
     UpdateView
 )
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import (
-    A4,
-    cm
-)
+from reportlab.lib.units import cm
+from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
     Paragraph,
     SimpleDocTemplate,
@@ -235,7 +233,7 @@ def export_pdf(request, id, uidb64=None, token=None):
         else:
             return HttpResponseForbidden()
     else:
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return HttpResponseForbidden()
         plan = get_object_or_404(NutritionPlan, pk=id, user=request.user)
 

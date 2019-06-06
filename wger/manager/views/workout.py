@@ -22,7 +22,7 @@ import uuid
 # Third Party
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.urlresolvers import (
+from django.urls import (
     reverse,
     reverse_lazy
 )
@@ -191,7 +191,7 @@ def copy_workout(request, pk):
                     current_set_copy.save()
 
                     # Exercises has Many2Many relationship
-                    current_set_copy.exercises = exercises
+                    current_set_copy.exercises.set(exercises)
 
                     # Go through the exercises
                     for exercise in exercises:

@@ -23,9 +23,8 @@ from itertools import chain
 # Third Party
 from django.forms import fields
 from django.forms.widgets import (
-    CheckboxChoiceInput,
+    CheckboxInput,
     CheckboxSelectMultiple,
-    ChoiceFieldRenderer,
     DateInput,
     Select,
     SelectMultiple,
@@ -104,7 +103,7 @@ class ExerciseAjaxSelect(SelectMultiple):
     This is basically a modified MultipleSelect widget
     '''
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):
         if value is None:
             value = []
 
@@ -150,9 +149,9 @@ class ExerciseAjaxSelect(SelectMultiple):
             return ''
 
 
-class CheckboxChoiceInputTranslated(CheckboxChoiceInput):
+class CheckboxChoiceInputTranslated(CheckboxInput):
     '''
-    Overwritten CheckboxChoiceInput
+    Overwritten CheckboxInput
 
     This only translated the text for the select widgets
     '''
@@ -164,9 +163,9 @@ class CheckboxChoiceInputTranslated(CheckboxChoiceInput):
         super(CheckboxChoiceInputTranslated, self).__init__(name, value, attrs, choice, index)
 
 
-class CheckboxChoiceInputTranslatedOriginal(CheckboxChoiceInput):
+class CheckboxChoiceInputTranslatedOriginal(CheckboxInput):
     '''
-    Overwritten CheckboxChoiceInput
+    Overwritten CheckboxInput
 
     This only translated the text for the select widgets, showing the original
     string as well.
@@ -186,11 +185,11 @@ class CheckboxChoiceInputTranslatedOriginal(CheckboxChoiceInput):
                                                                     index)
 
 
-class CheckboxFieldRendererTranslated(ChoiceFieldRenderer):
+class CheckboxFieldRendererTranslated(CheckboxSelectMultiple):
     choice_input_class = CheckboxChoiceInputTranslated
 
 
-class CheckboxFieldRendererTranslatedOriginal(ChoiceFieldRenderer):
+class CheckboxFieldRendererTranslatedOriginal(CheckboxSelectMultiple):
     choice_input_class = CheckboxChoiceInputTranslatedOriginal
 
 

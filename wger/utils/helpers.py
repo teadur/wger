@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 class EmailAuthBackend(object):
 
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None):
         try:
             user = User.objects.get(email=username)
             if user.check_password(password):
@@ -188,7 +188,7 @@ def check_access(request_user, username=None):
 
     # If there is no user_pk, just show the user his own data
     else:
-        if not request_user.is_authenticated():
+        if not request_user.is_authenticated:
             raise Http404('You are not allowed to access this page.')
         user = request_user
 
