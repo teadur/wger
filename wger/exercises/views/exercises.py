@@ -27,6 +27,7 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin
 )
+from django.conf import settings
 from django.core import mail
 from django.core.cache import cache
 from django.urls import (
@@ -42,10 +43,7 @@ from django.http import (
     HttpResponseForbidden,
     HttpResponseRedirect
 )
-from django.shortcuts import (
-    get_object_or_404,
-    render
-)
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.translation import (
     ugettext as _,
@@ -69,7 +67,8 @@ from wger.manager.models import WorkoutLog
 from wger.utils.cache import cache_mapper
 from wger.utils.generic_views import (
     WgerDeleteMixin,
-    WgerFormMixin
+    WgerFormMixin,
+    UAAwareViewMixin,
 )
 from wger.utils.language import (
     load_item_languages,
@@ -81,12 +80,12 @@ from wger.utils.widgets import (
     TranslatedSelectMultiple
 )
 from wger.weight.helpers import process_log_entries
-
+from wger.utils.helpers import ua_aware_render
 
 logger = logging.getLogger(__name__)
 
 
-class ExerciseListView(ListView):
+class ExerciseListView(UAAwareViewMixin, ListView):
     '''
     Generic view to list all exercises
     '''
@@ -169,7 +168,7 @@ def view(request, id, slug=None):
     template_data['json'] = chart_data
     template_data['svg_uuid'] = str(uuid.uuid4())
 
-    return render(request, 'exercise/view.html', template_data)
+    return ua_aware_render(request, 'exercise/view.html', template_data)
 
 
 class ExercisesEditAddView(WgerFormMixin):
@@ -212,7 +211,7 @@ class ExercisesEditAddView(WgerFormMixin):
                           'license_author']
 
             class Media:
-                js = ('/static/bower_components/tinymce/tinymce.min.js',)
+                js = (settings.STATIC_URL + 'bower_components/tinymce/tinymce.min.js',)
 
         return ExerciseForm
 
@@ -336,7 +335,8 @@ class ExerciseDeleteView(WgerDeleteMixin,
         return context
 
 
-class PendingExerciseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class PendingExerciseListView(LoginRequiredMixin, PermissionRequiredMixin,
+                              UAAwareViewMixin, ListView):
     '''
     Generic view to list all weight units
     '''

@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django_extensions',
+    'storages',
 
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -67,8 +68,7 @@ INSTALLED_APPS = (
     # The sitemaps app
     'django.contrib.sitemaps',
 
-    # Django mobile
-    'django_mobile',
+    'django_user_agents',
 
     # thumbnails
     'easy_thumbnails',
@@ -120,6 +120,8 @@ MIDDLEWARE = (
     # Javascript Header. Sends helper headers for AJAX
     'wger.utils.middleware.JavascriptAJAXRedirectionMiddleware',
 
+    'django_user_agents.middleware.UserAgentMiddleware',
+
     # Custom authentication middleware. Creates users on-the-fly for certain paths
     'wger.utils.middleware.WgerAuthenticationMiddleware',
 
@@ -129,10 +131,6 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-
-    # Django mobile
-    'django_mobile.middleware.MobileDetectionMiddleware',
-    'django_mobile.middleware.SetFlavourMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -157,16 +155,10 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
 
-                # Django mobile
-                'django_mobile.context_processors.flavour',
-
                 # Breadcrumbs
                 'django.template.context_processors.request'
             ],
             'loaders': [
-                # Django mobile
-                'django_mobile.loader.Loader',
-
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ],
@@ -314,12 +306,31 @@ THUMBNAIL_ALIASES = {
     },
 }
 
+STATIC_ROOT = ''
+USE_S3 = os.getenv('USE_S3') == 'TRUE'
+
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_CUSTOM_DOMAIN = os.getenv('WGER_CDN_DOMAIN')
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 static settings
+    AWS_LOCATION = 'static'
+    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    COMPRESS_URL = STATIC_URL
+    COMPRESS_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    COMPRESS_OFFLINE = True
+else:
+    STATIC_URL = '/static/'
+
 
 #
 # Django compressor
 #
-STATIC_ROOT = ''
-STATIC_URL = '/static/'
 
 # The default is not DEBUG, override if needed
 # COMPRESS_ENABLED = True
@@ -327,6 +338,10 @@ COMPRESS_CSS_FILTERS = (
     'compressor.filters.css_default.CssAbsoluteFilter',
     'compressor.filters.cssmin.rCSSMinFilter'
 )
+COMPRESS_JS_FILTERS = [
+    'compressor.filters.jsmin.JSMinFilter',
+    'compressor.filters.template.TemplateFilter',
+]
 COMPRESS_ROOT = STATIC_ROOT
 
 # BOWER binary
@@ -382,6 +397,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+USER_AGENTS_CACHE = 'default'
 
 #
 # Application specific configuration options
