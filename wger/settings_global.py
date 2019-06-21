@@ -94,12 +94,12 @@ INSTALLED_APPS = (
 
 # added list of external libraries to be installed by bower
 BOWER_INSTALLED_APPS = (
-    'bootstrap#3.3.x',
+    'bootstrap#3.x',
     'components-font-awesome#4.7.x',
     'd3',
     'DataTables',
     'devbridge-autocomplete#1.2.x',
-    'jquery#2.1.x',
+    'jquery#2.x',
     'metrics-graphics',
     'shariff#1.24.1',
     'sortablejs#1.4.x',
@@ -316,7 +316,7 @@ if USE_S3:
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
     AWS_DEFAULT_ACL = 'public-read'
     AWS_S3_CUSTOM_DOMAIN = os.getenv('WGER_CDN_DOMAIN')
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=31557600'}
     # s3 static settings
     AWS_LOCATION = 'static'
     STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
@@ -324,6 +324,10 @@ if USE_S3:
     COMPRESS_URL = STATIC_URL
     COMPRESS_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     COMPRESS_OFFLINE = True
+    COMPRESS_OFFLINE_CONTEXT = [
+        {'request': {'user_agent': {'is_mobile': True}}, 'STATIC_URL': STATIC_URL},
+        {'request': {'user_agent': {'is_mobile': False}}, 'STATIC_URL': STATIC_URL}
+    ]
 else:
     STATIC_URL = '/static/'
 
